@@ -1,0 +1,27 @@
+apiVersion: arbiter.k8s.com.cn/v1alpha1
+kind: ObservabilityIndicant
+metadata:
+  name: mem-cost-example-prometheus
+  namespace: arbiter
+spec:
+  log: {}
+  metric:
+    metricIntervalSeconds: 5
+    metrics:
+      cpu:
+        query: "sum(rate(container_cpu_usage_seconds_total{pod=\"mem-cost-78ccff7d6b-vbm7n\", namespace=\"arbiter\",container!=\"\",container!=\"POD\"}[2m]))"
+        description: "cpu"
+        unit: "C"
+        aggregations: []
+    timeRangeSeconds: 3600
+    historyRecord: 3
+  source: prometheus
+  targetRef:
+    group: ""
+    version: "v1"
+    resources: pods
+    namespace: arbiter
+    name: mem-cost-78ccff7d6b-vbm7n
+    labels:
+      aa: bb
+  trace: {}

@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: resource-tagger
+  namespace: system
+  labels:
+    plugin: resource-tagger
+spec:
+  selector:
+    matchLabels:
+      plugin: resource-tagger
+  replicas: 1
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: resource-tagger
+      labels:
+        plugin: resource-tagger
+    spec:
+      securityContext:
+        runAsNonRoot: true
+      containers:
+      - command:
+        - /resource-tagger
+        image: 172.22.50.227/arbiter/resource-tagger-plugin:v0.0.1
+        name: resource-tagger
+        securityContext:
+          allowPrivilegeEscalation: false
+        resources:
+          limits:
+            cpu: 500m
+            memory: 128Mi
+          requests:
+            cpu: 10m
+            memory: 64Mi
+      serviceAccountName: executor
+      terminationGracePeriodSeconds: 10

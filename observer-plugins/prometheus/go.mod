@@ -3,7 +3,7 @@ module github.com/kube-arbiter/arbiter-plugins/observer-plugins/prometheus
 go 1.18
 
 require (
-	github.com/kube-arbiter/arbiter v0.0.0
+	github.com/kube-arbiter/arbiter v0.1.0
 	github.com/prometheus/client_golang v1.12.2
 	github.com/prometheus/common v0.34.0
 	golang.org/x/net v0.0.0-20220722155237-a158d28d115b
@@ -11,8 +11,6 @@ require (
 	k8s.io/client-go v0.24.2
 	k8s.io/klog/v2 v2.60.1
 )
-
-replace github.com/kube-arbiter/arbiter => ./staging/arbiter
 
 require (
 	github.com/PuerkitoBio/purell v1.1.1 // indirect

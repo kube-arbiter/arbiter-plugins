@@ -15,7 +15,6 @@ COPY build-resource-tagger.sh build-resource-tagger.sh
 ## Copy the go source and vendor
 COPY cmd/server/server.go cmd/server/server.go
 COPY internal/ internal/
-COPY staging staging/
 
 RUN ./build-resource-tagger.sh ${CGO} ${ARCH} ${GOOS}
 

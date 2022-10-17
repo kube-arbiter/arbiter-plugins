@@ -8,7 +8,7 @@ ARG GOOS=linux
 WORKDIR /workspace
 
 # Copy the Go Modules manifests
-COPY ../observer-plugins/metric-server .
+COPY . .
 
 ## Copy the go source and vendor
 ## Build binary

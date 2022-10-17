@@ -8,13 +8,13 @@ ARG GOOS=linux
 
 WORKDIR /workspace
 # Copy the Go Modules manifests
-COPY ../executor-plugins/resource-tagger/go.mod go.mod
-COPY ../executor-plugins/resource-tagger/go.sum go.sum
-COPY ../executor-plugins/resource-tagger/build-resource-tagger.sh build-resource-tagger.sh
+COPY go.mod go.mod
+COPY go.sum go.sum
+COPY build-resource-tagger.sh build-resource-tagger.sh
 
 ## Copy the go source and vendor
-COPY ../executor-plugins/resource-tagger/cmd/server/server.go cmd/server/server.go
-COPY ../executor-plugins/resource-tagger/internal/ internal/
+COPY cmd/server/server.go cmd/server/server.go
+COPY internal/ internal/
 
 RUN ./build-resource-tagger.sh ${CGO} ${ARCH} ${GOOS}
 

@@ -1,6 +1,6 @@
 # Global environment variables
-IMAGE_REPO_ADDR = 172.22.50.227
-VERSION = v0.0.1
+IMAGE_REPO_ADDR = docker.io
+VERSION = v0.1.0
 
 
 ##@ General
@@ -62,19 +62,15 @@ _gen-proto-doc:
 run:  ## Run server and client locally.
 	go run cmd/server/server.go &
 	sleep 3
-	go run cmd/client/client.go
-	sleep 1
-	pkill server
 	true
 
 ##@ Build
 
 build:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build  -a -o resource-tagger cmd/server/server.go
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o resource-tagger-client cmd/client/client.go
 
-buildimg: build ## Build resource-tagger plugin image.
-	docker build -t $(IMAGE_REPO_ADDR)/arbiter/resource-tagger-plugin:$(VERSION) .
+build-image: ## Build resource-tagger plugin image.
+	docker build -t $(IMAGE_REPO_ADDR)/kubearbiter/executor-resource-tagger:$(VERSION) .
 
 updateimg: ## Update resource-tagger plugin image.
 	kubectl get pod -n arbiter | grep executor | awk '{print $$1}' | xargs kubectl delete pod -n arbiter

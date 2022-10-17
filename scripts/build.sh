@@ -17,5 +17,5 @@ cd $ROOT/observer-plugins/prometheus;
 ./build-prometheus.sh $1 $2 $3
 
 echo "build resource tagger"
-cd $ROOT/resource-tagger-plugin
+cd $ROOT/executor-plugins/resource-tagger
 ./build-resource-tagger.sh $1 $2 $3

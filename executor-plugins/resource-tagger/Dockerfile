@@ -8,15 +8,14 @@ ARG GOOS=linux
 
 WORKDIR /workspace
 # Copy the Go Modules manifests
-COPY ../resource-tagger-plugin/go.mod go.mod
-COPY ../resource-tagger-plugin/go.sum go.sum
-COPY ../resource-tagger-plugin/build-resource-tagger.sh build-resource-tagger.sh
+COPY go.mod go.mod
+COPY go.sum go.sum
+COPY build-resource-tagger.sh build-resource-tagger.sh
 
 ## Copy the go source and vendor
-COPY ../resource-tagger-plugin/cmd/server/server.go cmd/server/server.go
-COPY ../resource-tagger-plugin/cmd/client/client.go cmd/client/client.go
-COPY ../resource-tagger-plugin/internal/ internal/
-COPY ../resource-tagger-plugin/staging staging/
+COPY cmd/server/server.go cmd/server/server.go
+COPY internal/ internal/
+COPY staging staging/
 
 RUN ./build-resource-tagger.sh ${CGO} ${ARCH} ${GOOS}
 
@@ -28,6 +27,5 @@ RUN ./build-resource-tagger.sh ${CGO} ${ARCH} ${GOOS}
 FROM alpine:3.15
 WORKDIR /
 COPY --from=builder /workspace/resource-tagger /usr/local/bin/resource-tagger
-COPY --from=builder /workspace/resource-tagger-client /usr/local/bin/resource-tagger-client
 
 CMD ["resource-tagger"]

@@ -49,7 +49,7 @@ func (e *ExecuteServiceImpl) updateResource(resouceToUpdate *unstructured.Unstru
 		}
 		klog.Infof("Resource %s in namesapce '%s' is labeled", resourceName, message.Namespace)
 	} else {
-		for key, _ := range metaObj.Labels {
+		for key := range metaObj.Labels {
 			delete(labels, key)
 		}
 		klog.Infof("Resource %s in namespace '%s' is un-labeled", resourceName, message.Namespace)

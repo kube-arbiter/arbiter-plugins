@@ -105,6 +105,7 @@ func (s *server) GetMetrics(ctx context.Context, req *obi.GetMetricsRequest) (*o
 		queryPath := fmt.Sprintf(nodeMetricAPI, req.ResourceNames[0])
 		nodeMetricBytes, err := s.client.RESTClient().Get().AbsPath(queryPath).DoRaw(ctx)
 		if err != nil {
+			klog.Errorf("[Error] failed to get node metric from metric-server: %s\n", err)
 			return returnOjb, err
 		}
 		nodeMetric := NodeMetrics{}

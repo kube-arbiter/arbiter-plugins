@@ -59,6 +59,6 @@ func main() {
 
 	pb.RegisterExecuteServer(server, execute)
 
-	klog.Infoln("resourcetagger server started...")
+	klog.Infoln("resource-tagger plugin started...")
 	server.Serve(listener)
 }

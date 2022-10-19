@@ -22,7 +22,7 @@ spec:
       containers:
       - command:
         - /resource-tagger
-        image: 172.22.50.227/arbiter/resource-tagger-plugin:v0.0.1
+        image: kubearbiter/executor-resource-tagger:v0.1.0
         name: resource-tagger
         securityContext:
           allowPrivilegeEscalation: false

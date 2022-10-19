@@ -19,6 +19,8 @@ To implement a plugin, you only need to implement a `Grpc` interface. The interf
 ```protobuf
 syntax = "proto3";
 
+import "k8s.io/apimachinery/pkg/runtime/generated.proto";
+
 package execute;
 option go_package = "lib/executor";
 
@@ -37,7 +39,7 @@ message ExecuteMessage {
     string namespace = 3;
     double exprVal = 4;
     bool condVal = 5;
-    map<string, string> parameters = 6;
+    optional k8s.io.apimachinery.pkg.runtime.RawExtension actionData = 6;
     string group = 7;
     string version = 8;
     string resources = 9;

@@ -9,7 +9,7 @@ require (
 	google.golang.org/grpc v1.47.0
 	k8s.io/apimachinery v0.24.2
 	k8s.io/client-go v0.24.2
-	k8s.io/klog/v2 v2.60.1
+	k8s.io/klog/v2 v2.80.1
 )
 
 require (

@@ -1,0 +1,18 @@
+reviewers:
+  defaults:
+    - nkwangleiGIT
+    - 0xff-dev
+    - Abirdcfly
+
+options:
+  ignore_draft: true
+  ignored_keywords:
+    - DO NOT REVIEW
+    - DNR
+    - DO NOT MERGE
+    - DNM
+    - WIP
+    - WORK IN PROCESS
+  enable_group_assignment: false
+
+  number_of_reviewers: 3

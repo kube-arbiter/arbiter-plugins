@@ -21,13 +21,14 @@ import (
 	"log"
 	"net"
 
-	"github.com/kube-arbiter/arbiter-plugins/observer-plugins/prometheus/prometheus"
-	obi "github.com/kube-arbiter/arbiter/pkg/proto/lib/observer"
 	"google.golang.org/grpc"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
+
+	"github.com/kube-arbiter/arbiter-plugins/observer-plugins/prometheus/prometheus"
+	obi "github.com/kube-arbiter/arbiter/pkg/proto/lib/observer"
 )
 
 var (
@@ -72,5 +73,5 @@ func main() {
 	}
 
 	klog.Infof("%s starting work...", prometheus.PluginName)
-	server.Serve(listen)
+	klog.Fatalln(server.Serve(listen))
 }

@@ -1,0 +1,35 @@
+name: push
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+env:
+  GO_VERSION: "^1.19"
+
+jobs:
+  verify:
+    name: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v3
+      - name: Set up Go command
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          check-latest: true
+      - name: verify
+        run: make verify
+      - name: Login to docker
+        if: github.repository == 'kube-arbiter/arbiter-plugins'
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build image and Push
+        if: github.repository == 'kube-arbiter/arbiter-plugins'
+        run: make image OUTPUT_TYPE=registry IMAGE_TAG=dev

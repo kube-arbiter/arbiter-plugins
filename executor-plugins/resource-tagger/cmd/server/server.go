@@ -22,11 +22,11 @@ import (
 	"net"
 	"os"
 
-	"github.com/kube-arbiter/arbiter-plugins/executor-plugins/resource-tagger/internal/service"
-	pb "github.com/kube-arbiter/arbiter/pkg/proto/lib/executor"
+	"google.golang.org/grpc"
 	"k8s.io/klog/v2"
 
-	"google.golang.org/grpc"
+	"github.com/kube-arbiter/arbiter-plugins/executor-plugins/resource-tagger/internal/service"
+	pb "github.com/kube-arbiter/arbiter/pkg/proto/lib/executor"
 )
 
 const (
@@ -60,5 +60,5 @@ func main() {
 	pb.RegisterExecuteServer(server, execute)
 
 	klog.Infoln("resource-tagger plugin started...")
-	server.Serve(listener)
+	klog.Fatalln(server.Serve(listener))
 }

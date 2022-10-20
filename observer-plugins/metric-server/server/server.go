@@ -21,11 +21,11 @@ import (
 	"fmt"
 	"time"
 
-	obi "github.com/kube-arbiter/arbiter/pkg/proto/lib/observer"
-
 	"golang.org/x/net/context"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/klog/v2"
+
+	obi "github.com/kube-arbiter/arbiter/pkg/proto/lib/observer"
 )
 
 const (

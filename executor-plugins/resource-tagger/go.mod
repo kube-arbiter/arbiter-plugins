@@ -6,7 +6,7 @@ require (
 	github.com/golang/protobuf v1.5.2
 	github.com/kube-arbiter/arbiter v0.1.1-0.20221019145918-1199780f119f
 	github.com/pseudomuto/protoc-gen-doc v1.5.1
-	google.golang.org/grpc v1.47.0
+	google.golang.org/grpc v1.50.1
 	k8s.io/apimachinery v0.24.2
 	k8s.io/client-go v0.24.2
 	k8s.io/klog/v2 v2.60.1

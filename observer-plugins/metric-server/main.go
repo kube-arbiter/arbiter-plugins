@@ -21,16 +21,15 @@ import (
 	"log"
 	"net"
 
-	"k8s.io/client-go/kubernetes"
-
-	"github.com/kube-arbiter/arbiter-plugins/observer-plugins/metric-server/server"
-	obi "github.com/kube-arbiter/arbiter/pkg/proto/lib/observer"
-
 	//"github.com/smoky8/pkg/lib/go/obi"
 	"google.golang.org/grpc"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
+
+	"github.com/kube-arbiter/arbiter-plugins/observer-plugins/metric-server/server"
+	obi "github.com/kube-arbiter/arbiter/pkg/proto/lib/observer"
 )
 
 var (
@@ -71,5 +70,5 @@ func main() {
 	}
 	klog.Infof("%s starting work...", server.PluginName)
 
-	metricServer.Serve(listen)
+	klog.Fatalln(metricServer.Serve(listen))
 }

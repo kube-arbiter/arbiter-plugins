@@ -19,11 +19,12 @@ package service
 import (
 	"fmt"
 
-	pb "github.com/kube-arbiter/arbiter/pkg/proto/lib/executor"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/util/json"
 	"k8s.io/klog/v2"
+
+	pb "github.com/kube-arbiter/arbiter/pkg/proto/lib/executor"
 )
 
 /*

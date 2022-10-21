@@ -1,36 +1,30 @@
 apiVersion: arbiter.k8s.com.cn/v1alpha1
 kind: ObservabilityIndicant
 metadata:
-    name: mem-cost-example
-    namespace: arbiter
+  name: metric-server-node-cpu
 spec:
-    log: {}
-    metric:
-        metricIntervalSeconds: 5
-        metrics:
-            cpu:
-              #query: "sum(rate($namespace))" # 这里的namespace可以被替换进去, 还是对每个pod发请求，然后拼接模板。如果发现无法正常拼接，在evetn返回错误事件。
-                query: ""
-                description: cpu
-                unit: "C"
-                aggregations:
-                  - max
-            #type: # 变成某种类型
-        timeRangeSeconds: 10
-        # 最多保存多少条历史数据, 如果超过历史数据长度限制，考虑数据向前移动
-        historyRecord: 3
-    source: metric-server
-    targetRef:
-        group: ""
-        version: "v1"
-        resources: pods
-        namespace: arbiter
-        name: mem-cost-78ccff7d6b-vbm7n
-        labels:
-          aa: bb
-#        labels:
-#            app: app
-        # node 放到annotations可以考虑。
-        # 通过标签查询，后面介入的不管是链路，合作和其他的，都是传递标签直接使用
-        # 通过label的情况，需要保证这里的label与obi的label一致。也许不需要
-    trace: {}
+  metric:
+    historyLimit: 1
+    metricIntervalSeconds: 30
+    metrics:
+      cpu:
+        aggregations:
+        - time
+        description: ""
+        query: ""
+        unit: 'm'
+    timeRangeSeconds: 3600
+  source: metric-server
+  targetRef:
+    group: ""
+    index: 0
+    kind: Node
+    labels:
+      "data-test": "data-test"
+    name: ""
+    namespace: ""
+    version: v1
+status:
+  conditions: []
+  phase: ""
+  metrics: {}

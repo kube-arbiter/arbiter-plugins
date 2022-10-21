@@ -11,9 +11,9 @@ declare -A CODE_PATH=(
 )
 
 declare -A CODE_MAIN_PATH=(
-	["observer-metric-server"]="observer-plugins/metric-server/main.go"
-	["observer-prometheus-server"]="observer-plugins/prometheus/main.go"
-	["executor-resource-tagger"]="executor-plugins/resource-tagger/cmd/server/server.go"
+	["observer-metric-server"]="main.go"
+	["observer-prometheus-server"]="main.go"
+	["executor-resource-tagger"]="cmd/server/server.go"
 )
 
 declare -A DOCKERFILE_PATH=(

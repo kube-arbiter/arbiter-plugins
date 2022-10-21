@@ -30,13 +30,14 @@ function go::build_binary_for_platform() {
 	local -r os=${platform%/*}
 	local -r arch=${platform##*/}
 
+	cd "${CODE_PATH[$target]}"
 	set -x
-	cd ${CODE_PATH[$target]} && go mod vendor && cd -
-	CGO_ENABLED=0 GOOS=${os} GOARCH=${arch} go build \
+	GO111MODULE=on CGO_ENABLED=0 GOOS=${os} GOARCH=${arch} go build \
 		-ldflags "${LDFLAGS:-}" \
-		-o "_output/bin/${platform}/$target" \
-		"$BUILD_GOPATH/src/$PACKAGE_NAME/${CODE_MAIN_PATH[$target]}"
+		-o "$OUTPUT_DIR/bin/${platform}/$target" \
+		"${CODE_MAIN_PATH[$target]}"
 	set +x
+	cd -
 }
 
 function go::host_platform() {
@@ -85,4 +86,6 @@ function go::setup_env() {
 	export GOROOT
 
 	unset GOBIN
+
+	cd "$BUILD_GOPATH/src/$PACKAGE_NAME"
 }

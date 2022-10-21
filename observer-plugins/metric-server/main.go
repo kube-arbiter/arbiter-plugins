@@ -20,6 +20,9 @@ import (
 	"flag"
 	"log"
 	"net"
+	"os"
+	"os/signal"
+	"syscall"
 
 	//"github.com/smoky8/pkg/lib/go/obi"
 	"google.golang.org/grpc"
@@ -36,6 +39,9 @@ var (
 	//metricServer = flag.String("metric-server", "localhost", "metric server address")
 	endpoint   = flag.String("endpoint", "/var/run/observer.sock", "unix socket domain for current server")
 	kubeconfig = flag.String("kubeconfig", "", "kubernetes auth config file")
+)
+var (
+	shutdownSignals = []os.Signal{os.Interrupt, syscall.SIGTERM}
 )
 
 func main() {
@@ -61,8 +67,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("%s create metric client error: %s", server.PluginName, err)
 	}
-	metricServer := grpc.NewServer()
 
+	// Setup signal watcher to handle cleanup
+	SetupSignalHandler(*endpoint)
+
+	metricServer := grpc.NewServer()
 	obi.RegisterServerServer(metricServer, server.NewServer(clientSet))
 	listen, err := net.Listen("unix", *endpoint)
 	if err != nil {
@@ -71,4 +80,26 @@ func main() {
 	klog.Infof("%s starting work...", server.PluginName)
 
 	klog.Fatalln(metricServer.Serve(listen))
+}
+
+// SetupSignalHandler registered for SIGTERM and SIGINT. A stop channel is returned
+// which is closed on one of these signals. If a second signal is caught, the program
+// is terminated with exit code 1.
+func SetupSignalHandler(socketFile string) {
+	c := make(chan os.Signal, 2)
+	signal.Notify(c, shutdownSignals...)
+	go func() {
+		for s := range c {
+			switch s {
+			case os.Interrupt, syscall.SIGTERM:
+				klog.Infoln("Shutting down normally...")
+				if err := os.RemoveAll(socketFile); err != nil {
+					klog.Fatal(err)
+				}
+				os.Exit(1)
+			default:
+				klog.Infoln("Got signal", s)
+			}
+		}
+	}()
 }

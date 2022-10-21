@@ -20,6 +20,9 @@ import (
 	"flag"
 	"log"
 	"net"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"google.golang.org/grpc"
 	"k8s.io/client-go/kubernetes"
@@ -37,6 +40,9 @@ var (
 	address     = flag.String("address", "", "prometheus server, such as http://localhost:9090")
 	stepSeconds = flag.Int64("step", 60, "query steps")
 	rangeMinute = flag.Int64("range", 2, "prometheus, the maximum time between two slices within the boundaries.")
+)
+var (
+	shutdownSignals = []os.Signal{os.Interrupt, syscall.SIGTERM}
 )
 
 func main() {
@@ -64,6 +70,8 @@ func main() {
 	if err != nil {
 		klog.Fatal(err)
 	}
+	// Setup signal watcher to handle cleanup
+	SetupSignalHandler(*endpoint)
 
 	server := grpc.NewServer()
 	obi.RegisterServerServer(server, prometheus.NewPrometheusServer(*address, conf, *stepSeconds, *rangeMinute))
@@ -72,6 +80,28 @@ func main() {
 		log.Fatal(err)
 	}
 
-	klog.Infof("%s starting work...", prometheus.PluginName)
+	klog.Infof("%s plugin started ...", prometheus.PluginName)
 	klog.Fatalln(server.Serve(listen))
+}
+
+// SetupSignalHandler registered for SIGTERM and SIGINT. A stop channel is returned
+// which is closed on one of these signals. If a second signal is caught, the program
+// is terminated with exit code 1.
+func SetupSignalHandler(socketFile string) {
+	c := make(chan os.Signal, 2)
+	signal.Notify(c, shutdownSignals...)
+	go func() {
+		for s := range c {
+			switch s {
+			case os.Interrupt, syscall.SIGTERM:
+				klog.Infoln("Shutting down normally...")
+				if err := os.RemoveAll(socketFile); err != nil {
+					klog.Fatal(err)
+				}
+				os.Exit(1)
+			default:
+				klog.Infoln("Got signal", s)
+			}
+		}
+	}()
 }

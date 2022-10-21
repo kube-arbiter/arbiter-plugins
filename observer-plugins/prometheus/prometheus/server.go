@@ -31,6 +31,7 @@ const (
 	MaxAction  = "max"
 	MinAction  = "min"
 	AvgAction  = "avg"
+	NoneAction = "none"
 )
 
 // impl obi interface
@@ -77,24 +78,27 @@ func (p *prometheusServer) GetMetrics(ctx context.Context, req *obi.GetMetricsRe
 
 	var err error
 	klog.V(4).Infof("prometheus query: %s\n", req.Query)
+	var resourceName string
+	if len(req.ResourceNames) > 0 {
+		resourceName = req.ResourceNames[0]
+	}
 	result := &obi.GetMetricsResponse{
-		ResourceName: req.ResourceNames[0],
+		ResourceName: resourceName,
 		Namespace:    req.Namespace,
 		Unit:         req.Unit,
 		Records:      []*obi.GetMetricsResponseRecord{},
 	}
 
+	// use avgerage as the default aggregation action
 	op := AvgAction
 	if len(req.Aggregation) > 0 {
 		op = req.Aggregation[0]
 	}
-	klog.Infof("exec aggregation is: %s\n", op)
-	metricData, err := p.Query(startTime, endTime, req.Query, op)
+	metricData, err := p.Query(startTime, endTime, req.Kind, req.Query, op)
 	if err != nil {
 		klog.Errorf("%s query error: %s\n", method, err)
 		return result, err
 	}
-
 	// only return the latest record
 	result.Records = append(result.Records, &obi.GetMetricsResponseRecord{Timestamp: metricData.Timestamp, Value: metricData.Value})
 	/*
@@ -103,8 +107,8 @@ func (p *prometheusServer) GetMetrics(ctx context.Context, req *obi.GetMetricsRe
 		}
 	*/
 
-	klog.Infof("query by %s successfully", req.MetricName)
-	klog.V(5).Infof("%s query by %s result: %v\n", method, req.MetricName, metricData)
+	klog.Infof("query by metric '%s', query '%s' successfully", req.MetricName, req.Query)
+	klog.V(5).Infof("%s query by %s, %s result: %v\n", method, req.MetricName, req.Query, metricData)
 
 	return result, nil
 }

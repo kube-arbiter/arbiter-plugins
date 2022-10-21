@@ -17,6 +17,7 @@ limitations under the License.
 package prometheus
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -65,7 +66,7 @@ type CalculateAux struct {
 	Value     float64
 }
 
-func (p *prometheusServer) Query(startTime, endTime time.Time, query, op string) (DataSeries, error) {
+func (p *prometheusServer) Query(startTime, endTime time.Time, kind, query, op string) (DataSeries, error) {
 	method := "prometheusServer.Query"
 	ans := DataSeries{Timestamp: endTime.UnixMilli()}
 	prometheusAPI, err := p.NewPrometheusAPI()
@@ -86,18 +87,29 @@ func (p *prometheusServer) Query(startTime, endTime time.Time, query, op string)
 		klog.V(4).Infof("%s quer '%s' result with warnings %v\n", method, warnings)
 	}
 
-	data, err := formatRawValues(result, op)
-	if err != nil {
-		return ans, err
-	}
-
-	if f, ok := actionFuncs[op]; ok {
-		f(data, &ans)
+	// TODO: Use kind as the raw data query, may add a 'rawData: true' property for this?
+	if kind == "Pod" || kind == "Node" {
+		data, err := formatRawValues(result)
+		if err != nil {
+			return ans, err
+		}
+		if f, ok := actionFuncs[op]; ok {
+			f(data, &ans)
+		}
+	} else {
+		// Handle raw data if no aggregation defined, just return the json data
+		jsonValue, err := json.Marshal(result)
+		if err != nil {
+			klog.Errorf("failed to marshal result to json: %s", err)
+			ans.Value = fmt.Sprintf("failed to get json value: %s " + result.String())
+		} else {
+			ans.Value = string(jsonValue)
+		}
 	}
 	return ans, nil
 }
 
-func formatRawValues(rawValue model.Value, op string) ([]CalculateAux, error) {
+func formatRawValues(rawValue model.Value) ([]CalculateAux, error) {
 	ans := make([]CalculateAux, 0)
 	switch rawValue.Type() {
 	case model.ValScalar:

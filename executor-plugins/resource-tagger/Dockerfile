@@ -11,6 +11,7 @@ WORKDIR /workspace
 COPY go.mod go.mod
 COPY go.sum go.sum
 COPY build-resource-tagger.sh build-resource-tagger.sh
+COPY staging/ staging/
 
 ## Copy the go source and vendor
 COPY cmd/server/server.go cmd/server/server.go

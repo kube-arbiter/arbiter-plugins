@@ -46,12 +46,23 @@ func NewExecuteService() pb.ExecuteServer {
 	return new(ExecuteServiceImpl)
 }
 
+func (e *ExecuteServiceImpl) ExecuteAction(ctx context.Context, message *pb.ExecuteActionMessage) (*pb.ExecuteActionResponse, error) {
+	return &pb.ExecuteActionResponse{
+		Action: []string{"label", "none"},
+	}, nil
+}
+
 func (e *ExecuteServiceImpl) Execute(ctx context.Context, message *pb.ExecuteMessage) (*pb.ExecuteResponse, error) {
 	klog.V(10).Infof("kubeconfig path: %s\n", *kubeconfig)
-	klog.V(4).Infof("ResourceName: %s, namespace: %s, exprval: %f, condval: %v, actionData: %v\n",
-		message.ResourceName, message.Namespace, message.ExprVal, message.CondVal, message.ActionData)
-
+	klog.V(4).Infof("ResourceName: %s, namespace: %s, exprval: %f, condval: %v, actionData: %v, behavior: %s\n",
+		message.ResourceName, message.Namespace, message.ExprVal, message.CondVal, message.ActionData, message.Action)
 	resourceBaseFormat := fmt.Sprintf("%s/%s/%s:%s", message.Group, message.Version, message.Resources, message.ResourceName)
+
+	if message.Action == "none" || message.Action == "" {
+		klog.Infof("%s action is %s, skip.", resourceBaseFormat, message.Action)
+		return &pb.ExecuteResponse{Data: ""}, nil
+	}
+
 	var (
 		config *rest.Config
 		err    error

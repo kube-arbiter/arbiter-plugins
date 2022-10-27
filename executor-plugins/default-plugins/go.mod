@@ -1,4 +1,4 @@
-module github.com/kube-arbiter/arbiter-plugins/executor-plugins/resource-tagger
+module github.com/kube-arbiter/arbiter-plugins/executor-plugins/default-plugins
 
 go 1.18
 

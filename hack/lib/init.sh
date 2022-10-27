@@ -7,7 +7,7 @@ ROOT_PATH=$(dirname "${BASH_SOURCE[0]}")/../..
 declare -A CODE_PATH=(
 	["observer-metric-server"]="observer-plugins/metric-server"
 	["observer-prometheus-server"]="observer-plugins/prometheus"
-	["executor-resource-tagger"]="executor-plugins/resource-tagger"
+	["executor-resource-tagger"]="executor-plugins/default-plugins"
 )
 
 declare -A CODE_MAIN_PATH=(
@@ -19,7 +19,7 @@ declare -A CODE_MAIN_PATH=(
 declare -A DOCKERFILE_PATH=(
 	["observer-metric-server"]="observer-plugins/metric-server/Dockerfile"
 	["observer-prometheus-server"]="observer-plugins/prometheus/Dockerfile"
-	["executor-resource-tagger"]="executor-plugins/resource-tagger/Dockerfile"
+	["executor-resource-tagger"]="executor-plugins/defaulg-plugins/Dockerfile"
 )
 
 source "${ROOT_PATH}/hack/lib/util.sh"

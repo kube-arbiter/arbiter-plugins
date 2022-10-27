@@ -25,8 +25,10 @@ import (
 	"google.golang.org/grpc"
 	"k8s.io/klog/v2"
 
-	"github.com/kube-arbiter/arbiter-plugins/executor-plugins/resource-tagger/internal/service"
+	"github.com/kube-arbiter/arbiter-plugins/executor-plugins/default-plugins/pkg"
 	pb "github.com/kube-arbiter/arbiter/pkg/proto/lib/executor"
+
+	_ "github.com/kube-arbiter/arbiter-plugins/executor-plugins/default-plugins/pkg/plugins/resource-updater"
 )
 
 const (
@@ -38,7 +40,6 @@ func main() {
 	// Load flags from command line
 	klog.InitFlags(nil)
 	flag.Parse()
-
 	cleanup := func() {
 		if _, err := os.Stat(sockAddr); err == nil {
 			if err := os.RemoveAll(sockAddr); err != nil {
@@ -55,7 +56,7 @@ func main() {
 	}
 
 	server := grpc.NewServer()
-	execute := service.NewExecuteService()
+	execute := pkg.NewExecuteService()
 
 	pb.RegisterExecuteServer(server, execute)
 

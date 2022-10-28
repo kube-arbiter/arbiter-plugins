@@ -19,7 +19,7 @@ declare -A CODE_MAIN_PATH=(
 declare -A DOCKERFILE_PATH=(
 	["observer-metric-server"]="observer-plugins/metric-server/Dockerfile"
 	["observer-prometheus-server"]="observer-plugins/prometheus/Dockerfile"
-	["executor-resource-tagger"]="executor-plugins/defaulg-plugins/Dockerfile"
+	["executor-resource-tagger"]="executor-plugins/default-plugins/Dockerfile"
 )
 
 source "${ROOT_PATH}/hack/lib/util.sh"

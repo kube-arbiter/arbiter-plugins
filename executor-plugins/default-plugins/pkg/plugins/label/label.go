@@ -14,11 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package label
 
 import (
 	"context"
-	"flag"
 	"fmt"
 
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -27,56 +26,23 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
 
 	pb "github.com/kube-arbiter/arbiter/pkg/proto/lib/executor"
 )
 
-type ExecuteServiceImpl struct {
-	pb.UnimplementedExecuteServer
+type LabelExecutor struct {
+	name string
 }
 
-var (
-	_          pb.ExecuteServer = (*ExecuteServiceImpl)(nil)
-	kubeconfig                  = flag.String("kubeconfig", "", "Path to a kubeconfig. Only required if out-of-cluster.")
-)
-
-func NewExecuteService() pb.ExecuteServer {
-	return new(ExecuteServiceImpl)
+func (l *LabelExecutor) Name() string {
+	return l.name
 }
 
-func (e *ExecuteServiceImpl) ExecuteAction(ctx context.Context, message *pb.ExecuteActionMessage) (*pb.ExecuteActionResponse, error) {
-	return &pb.ExecuteActionResponse{
-		Action: []string{"label", "none"},
-	}, nil
-}
-
-func (e *ExecuteServiceImpl) Execute(ctx context.Context, message *pb.ExecuteMessage) (*pb.ExecuteResponse, error) {
-	klog.V(10).Infof("kubeconfig path: %s\n", *kubeconfig)
-	klog.V(4).Infof("ResourceName: %s, namespace: %s, exprval: %f, condval: %v, actionData: %v, behavior: %s\n",
-		message.ResourceName, message.Namespace, message.ExprVal, message.CondVal, message.ActionData, message.Action)
+func (l *LabelExecutor) Execute(ctx context.Context, cfg *rest.Config, message *pb.ExecuteMessage) (*pb.ExecuteResponse, error) {
 	resourceBaseFormat := fmt.Sprintf("%s/%s/%s:%s", message.Group, message.Version, message.Resources, message.ResourceName)
 
-	if message.Action == "none" || message.Action == "" {
-		klog.Infof("%s action is %s, skip.", resourceBaseFormat, message.Action)
-		return &pb.ExecuteResponse{Data: ""}, nil
-	}
-
-	var (
-		config *rest.Config
-		err    error
-	)
-
-	if *kubeconfig != "" {
-		config, err = clientcmd.BuildConfigFromFlags("", *kubeconfig)
-	} else {
-		config, err = rest.InClusterConfig()
-	}
-	if err != nil {
-		klog.Fatalf("error when building kubeconfig: %s", err.Error())
-	}
-	dynamicClient, err := dynamic.NewForConfig(config)
+	dynamicClient, err := dynamic.NewForConfig(cfg)
 	if err != nil {
 		panic(err)
 	}
@@ -93,7 +59,7 @@ func (e *ExecuteServiceImpl) Execute(ctx context.Context, message *pb.ExecuteMes
 		resouceToUpdate, err = namespaceableInterface.Get(context.Background(), message.ResourceName, metav1.GetOptions{})
 	}
 	if err != nil {
-		klog.Errorf("get resource %s (int namespace %s) error: %s\n", resourceBaseFormat, message.Namespace, err)
+		klog.Errorf("get resource %s (in namespace %s) error: %s\n", resourceBaseFormat, message.Namespace, err)
 		if errors.IsNotFound(err) {
 			response.Data = fmt.Sprintf("Resource %s not found in namespace %s", resourceBaseFormat, message.Namespace)
 			return response, nil
@@ -101,8 +67,8 @@ func (e *ExecuteServiceImpl) Execute(ctx context.Context, message *pb.ExecuteMes
 		response.Data = fmt.Sprintf("get resource %s error: %s", resourceBaseFormat, err)
 		return response, err
 	}
-	// Let the custom code to handle how to update the resource
-	err = e.updateResource(resouceToUpdate, message)
+
+	err = UpdateResource(resouceToUpdate, message)
 	if err != nil {
 		response.Data = err.Error()
 		return response, err
@@ -116,5 +82,10 @@ func (e *ExecuteServiceImpl) Execute(ctx context.Context, message *pb.ExecuteMes
 		response.Data = fmt.Sprintf("update resource %s error: %s", resourceBaseFormat, err)
 		return response, err
 	}
+
 	return response, nil
+}
+
+func NewLabelExecutor(name string) *LabelExecutor {
+	return &LabelExecutor{name: name}
 }

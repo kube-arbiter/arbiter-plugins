@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package service
+package label
 
 import (
 	"fmt"
@@ -31,7 +31,7 @@ import (
 actionData defines the resource passed to the plugins, it can have arbitrary structure
 You can use the .Raw data, and marshel a json object
 */
-func (e *ExecuteServiceImpl) updateResource(resouceToUpdate *unstructured.Unstructured, message *pb.ExecuteMessage) (err error) {
+func UpdateResource(resouceToUpdate *unstructured.Unstructured, message *pb.ExecuteMessage) (err error) {
 	resourceName := fmt.Sprintf("%s/%s", resouceToUpdate.GetKind(), resouceToUpdate.GetName())
 	klog.Infof("start processing resource %s", resourceName)
 

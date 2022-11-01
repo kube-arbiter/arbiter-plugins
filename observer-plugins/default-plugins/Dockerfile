@@ -12,12 +12,12 @@ COPY . .
 
 ## Copy the go source and vendor
 ## Build binary
-RUN ./build-metric-server.sh ${CGO} ${ARCH} ${GOOS}
+RUN ./build.sh ${CGO} ${ARCH} ${GOOS}
 
 FROM alpine:3.15
 
 MAINTAINER 0xff-dev
 
-COPY --from=builder /workspace/observer-metric-server /usr/local/bin
+COPY --from=builder /workspace/default-plugins /usr/local/bin
 
-CMD ["observer-metric-server"]
+CMD ["default-plugins"]

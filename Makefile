@@ -5,8 +5,7 @@ SOURCES := $(shell find . -type f  -name '*.go')
 
 REGISTRY ?= "docker.io/kubearbiter"
 
-DOCKER_TARGETS := observer-metric-server \
-                  observer-prometheus-server \
+DOCKER_TARGETS := observer-default-plugins \
                   executor-resource-tagger
 
 TARGETS := ${DOCKER_TARGETS} \

@@ -17,70 +17,42 @@ limitations under the License.
 package main
 
 import (
-	"flag"
-	"log"
 	"net"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"google.golang.org/grpc"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
 
-	"github.com/kube-arbiter/arbiter-plugins/observer-plugins/prometheus/prometheus"
+	"github.com/kube-arbiter/arbiter-plugins/observer-plugins/default-plugins/pkg"
+	"github.com/kube-arbiter/arbiter-plugins/observer-plugins/default-plugins/pkg/flags"
 	obi "github.com/kube-arbiter/arbiter/pkg/proto/lib/observer"
+
+	_ "github.com/kube-arbiter/arbiter-plugins/observer-plugins/default-plugins/pkg/install"
 )
 
-var (
-	endpoint    = flag.String("endpoint", "/var/run/observer.sock", "unix socket domain for current server")
-	kubeConfig  = flag.String("kubeconfig", "", "kubernetes auth config file")
-	address     = flag.String("address", "", "prometheus server, such as http://localhost:9090")
-	stepSeconds = flag.Int64("step", 60, "query steps")
-	rangeMinute = flag.Int64("range", 2, "prometheus, the maximum time between two slices within the boundaries.")
-)
 var (
 	shutdownSignals = []os.Signal{os.Interrupt, syscall.SIGTERM}
 )
 
 func main() {
-	klog.InitFlags(flag.CommandLine)
-	flag.Parse()
-
-	if *address == "" {
-		klog.Fatalf("prometheus serve address can not be empty")
+	_, err := os.Stat(*flags.Endpoint)
+	if err != nil && !os.IsNotExist(err) {
+		klog.Fatalln(err)
 	}
-	var (
-		conf *rest.Config
-		err  error
-	)
-	if *kubeConfig != "" {
-		conf, err = clientcmd.BuildConfigFromFlags("", *kubeConfig)
-	} else {
-		conf, err = rest.InClusterConfig()
-	}
+	os.Remove(*flags.Endpoint)
 
-	if err != nil {
-		klog.Fatal(err)
-	}
-
-	_, err = kubernetes.NewForConfig(conf)
-	if err != nil {
-		klog.Fatal(err)
-	}
-	// Setup signal watcher to handle cleanup
-	SetupSignalHandler(*endpoint)
-
+	SetupSignalHandler(*flags.Endpoint)
 	server := grpc.NewServer()
-	obi.RegisterServerServer(server, prometheus.NewPrometheusServer(*address, conf, *stepSeconds, *rangeMinute))
-	listen, err := net.Listen("unix", *endpoint)
+	obi.RegisterServerServer(server, pkg.NewServer())
+
+	listen, err := net.Listen("unix", *flags.Endpoint)
 	if err != nil {
-		log.Fatal(err)
+		klog.Fatal(err)
 	}
 
-	klog.Infof("%s plugin started ...", prometheus.PluginName)
+	klog.Infof("Observer plugin started ...\n")
 	klog.Fatalln(server.Serve(listen))
 }
 

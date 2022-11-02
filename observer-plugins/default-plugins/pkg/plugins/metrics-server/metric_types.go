@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 /* just copy https://github.com/kubernetes/metrics types define */
-package server
+package metricsserver
 
 import (
 	v1 "k8s.io/api/core/v1"

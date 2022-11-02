@@ -1,9 +1,11 @@
-module github.com/kube-arbiter/arbiter-plugins/observer-plugins/metric-server
+module github.com/kube-arbiter/arbiter-plugins/observer-plugins/default-plugins
 
 go 1.18
 
 require (
 	github.com/kube-arbiter/arbiter v0.1.0
+	github.com/prometheus/client_golang v1.12.1
+	github.com/prometheus/common v0.32.1
 	golang.org/x/net v0.0.0-20220722155237-a158d28d115b
 	google.golang.org/grpc v1.46.2
 	k8s.io/api v0.24.2
@@ -11,6 +13,8 @@ require (
 	k8s.io/client-go v0.24.2
 	k8s.io/klog/v2 v2.60.1
 )
+
+replace github.com/kube-arbiter/arbiter => ./staging/github.com/kube-arbiter/arbiter
 
 require (
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
@@ -24,6 +28,7 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/gnostic v0.5.7-v3refs // indirect
+	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/josharian/intern v1.0.0 // indirect

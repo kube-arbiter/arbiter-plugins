@@ -5,20 +5,17 @@ unset CDPATH
 ROOT_PATH=$(dirname "${BASH_SOURCE[0]}")/../..
 
 declare -A CODE_PATH=(
-	["observer-metric-server"]="observer-plugins/metric-server"
-	["observer-prometheus-server"]="observer-plugins/prometheus"
+	["observer-default-plugins"]="observer-plugins/default-plugins"
 	["executor-resource-tagger"]="executor-plugins/default-plugins"
 )
 
 declare -A CODE_MAIN_PATH=(
-	["observer-metric-server"]="main.go"
-	["observer-prometheus-server"]="main.go"
+	["observer-default-plugins"]="main.go"
 	["executor-resource-tagger"]="cmd/server/server.go"
 )
 
 declare -A DOCKERFILE_PATH=(
-	["observer-metric-server"]="observer-plugins/metric-server/Dockerfile"
-	["observer-prometheus-server"]="observer-plugins/prometheus/Dockerfile"
+	["observer-default-plugins"]="observer-plugins/default-plugins/Dockerfile"
 	["executor-resource-tagger"]="executor-plugins/default-plugins/Dockerfile"
 )
 

@@ -21,8 +21,11 @@ import (
 
 	"golang.org/x/net/context"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
 
+	"github.com/kube-arbiter/arbiter-plugins/observer-plugins/default-plugins/pkg/flags"
+	"github.com/kube-arbiter/arbiter-plugins/observer-plugins/default-plugins/pkg/plugins/resource"
 	obi "github.com/kube-arbiter/arbiter/pkg/proto/lib/observer"
 )
 
@@ -37,40 +40,42 @@ const (
 // impl obi interface
 type prometheusServer struct {
 	obi.UnimplementedServerServer
-	address                  string
-	restConf                 *rest.Config
-	stepSeconds, rangeMinute int64
+	address     string
+	restConf    *rest.Config
+	stepSeconds int64
 }
 
-func NewPrometheusServer(address string, restConf *rest.Config, stepSeconds, rangeMinute int64) *prometheusServer {
+func NewPrometheusServer(address string, restConf *rest.Config, stepSeconds int64) *prometheusServer {
 	method := "NewPrometheusServer"
-	klog.V(4).Infof("%s stepSecond: %d, rangeMinute: %d\n", method, stepSeconds, rangeMinute)
+	klog.V(4).Infof("%s stepSecond: %d\n", method, stepSeconds)
 	return &prometheusServer{
 		address:     address,
 		restConf:    restConf,
 		stepSeconds: stepSeconds,
-		rangeMinute: rangeMinute,
 	}
 }
 
-func (p *prometheusServer) GetPluginName(ctx context.Context, req *obi.GetPluginNameRequest) (*obi.GetPluginNameResponse, error) {
-	method := "prometheusServer.GetPluginName"
-
-	klog.V(4).Infof("%s req %s\n", method, req.String())
-	return &obi.GetPluginNameResponse{
-		Name: PluginName,
-	}, nil
+func (p *prometheusServer) Name() string {
+	return PluginName
 }
 
-func (p *prometheusServer) PluginCapabilities(ctx context.Context, req *obi.PluginCapabilitiesRequest) (*obi.PluginCapabilitiesResponse, error) {
-	method := "prometheusServer.PluginCapabilities"
-	klog.V(4).Infof("%s req %s\n", method, req.String())
-
-	return &obi.PluginCapabilitiesResponse{}, nil
+func (p *prometheusServer) Capabilities() map[string]*obi.CapabilityInfo {
+	return map[string]*obi.CapabilityInfo{
+		"cpu": {
+			MetricUnit:  "m",
+			Description: "request pod or node cpu information from prometheus",
+			Aggregation: []string{MaxAction, MinAction, AvgAction},
+		},
+		"memory": {
+			MetricUnit:  "byte",
+			Description: "request pod or node memory information from prometheus",
+			Aggregation: []string{MaxAction, MinAction, AvgAction},
+		},
+	}
 }
 
-func (p *prometheusServer) GetMetrics(ctx context.Context, req *obi.GetMetricsRequest) (*obi.GetMetricsResponse, error) {
-	method := "prometheusServer.GetMetrics"
+func (p *prometheusServer) FetchData(ctx context.Context, req *obi.GetMetricsRequest) (*obi.GetMetricsResponse, error) {
+	method := "prometheusServer/FetchData"
 	klog.V(4).Infof("%s req %s\n", method, req.String())
 
 	startTime := time.Unix(0, req.StartTime*int64(time.Millisecond))
@@ -101,14 +106,20 @@ func (p *prometheusServer) GetMetrics(ctx context.Context, req *obi.GetMetricsRe
 	}
 	// only return the latest record
 	result.Records = append(result.Records, &obi.GetMetricsResponseRecord{Timestamp: metricData.Timestamp, Value: metricData.Value})
-	/*
-		for _, data := range metricDatas {
-			result.Records = append(result.Records, &obi.GetMetricsResponseRecord{Timestamp: data.Timestamp, Value: data.Value})
-		}
-	*/
 
 	klog.Infof("query by metric '%s', query '%s' successfully", req.MetricName, req.Query)
 	klog.V(5).Infof("%s query by %s, %s result: %v\n", method, req.MetricName, req.Query, metricData)
 
 	return result, nil
+}
+
+func init() {
+	cfg, err := clientcmd.BuildConfigFromFlags("", *flags.Kubeconfig)
+	if err == nil {
+		instance := NewPrometheusServer(*flags.Address, cfg, *flags.StepSeconds)
+		resource.Register(instance)
+		klog.Infof("Observer [%s] registration is successful", PluginName)
+	} else {
+		klog.Warningf("Observer [%s] registration failed", PluginName)
+	}
 }

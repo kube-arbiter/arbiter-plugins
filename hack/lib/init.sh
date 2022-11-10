@@ -10,7 +10,7 @@ declare -A CODE_PATH=(
 )
 
 declare -A CODE_MAIN_PATH=(
-	["observer-default-plugins"]="main.go"
+	["observer-default-plugins"]="cmd/server/server.go"
 	["executor-default-plugins"]="cmd/server/server.go"
 )
 

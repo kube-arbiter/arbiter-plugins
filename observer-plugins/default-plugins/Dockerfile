@@ -7,7 +7,7 @@ ARG GOOS=linux
 
 WORKDIR /workspace
 
-# Copy the Go Modules manifests
+# Copy the source code
 COPY . .
 
 ## Copy the go source and vendor
@@ -18,6 +18,6 @@ FROM alpine:3.15
 
 MAINTAINER 0xff-dev
 
-COPY --from=builder /workspace/default-plugins /usr/local/bin
+COPY --from=builder /workspace/observer-default-plugins /usr/local/bin
 
-CMD ["default-plugins"]
+CMD ["observer-default-plugins"]

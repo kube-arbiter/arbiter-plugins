@@ -25,10 +25,10 @@ import (
 	"google.golang.org/grpc"
 	"k8s.io/klog/v2"
 
-	"github.com/kube-arbiter/arbiter-plugins/executor-plugins/default-plugins/pkg"
+	"github.com/kube-arbiter/arbiter-plugins/executor-plugins/default-plugins/pkg/wrapper"
 	pb "github.com/kube-arbiter/arbiter/pkg/proto/lib/executor"
 
-	_ "github.com/kube-arbiter/arbiter-plugins/executor-plugins/default-plugins/pkg/plugins/resource-updater"
+	_ "github.com/kube-arbiter/arbiter-plugins/executor-plugins/default-plugins/pkg/plugins/update_resource"
 )
 
 const (
@@ -56,10 +56,10 @@ func main() {
 	}
 
 	server := grpc.NewServer()
-	execute := pkg.NewExecuteService()
+	execute := wrapper.NewExecuteService()
 
 	pb.RegisterExecuteServer(server, execute)
 
-	klog.Infoln("resource-tagger plugin started...")
+	klog.Infoln("executor-default-plugins started...")
 	klog.Fatalln(server.Serve(listener))
 }

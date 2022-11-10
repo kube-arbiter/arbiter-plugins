@@ -97,7 +97,7 @@ func (p *prometheusServer) Query(startTime, endTime time.Time, kind, query, op s
 			f(data, &ans)
 		}
 	} else {
-		// Handle raw data if no aggregation defined, just return the json data
+		// Handle raw data if it's not pod or node kind, just return the json data
 		jsonValue, err := json.Marshal(result)
 		if err != nil {
 			klog.Errorf("failed to marshal result to json: %s", err)

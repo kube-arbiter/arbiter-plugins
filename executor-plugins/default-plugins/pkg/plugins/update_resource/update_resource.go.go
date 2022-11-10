@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package label
+package plugins
 
 import (
 	"context"
@@ -24,6 +24,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/util/json"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
 	"k8s.io/klog/v2"
@@ -31,15 +32,51 @@ import (
 	pb "github.com/kube-arbiter/arbiter/pkg/proto/lib/executor"
 )
 
-type LabelExecutor struct {
+type ResourceUpdateExecutor struct {
 	name string
 }
 
-func (l *LabelExecutor) Name() string {
+func (l *ResourceUpdateExecutor) Name() string {
 	return l.name
 }
 
-func (l *LabelExecutor) Execute(ctx context.Context, cfg *rest.Config, message *pb.ExecuteMessage) (*pb.ExecuteResponse, error) {
+/*
+actionData defines the resource passed to the plugins, it can have arbitrary structure
+You can use the .Raw data, and marshel a json object
+
+Here is an example executor plugin to show how to update the associated resource using the data from OBI & OAP
+it'll add/remove labels from the value that evaluated by OAP
+*/
+func UpdateResource(resouceToUpdate *unstructured.Unstructured, message *pb.ExecuteMessage) (err error) {
+	resourceName := fmt.Sprintf("%s/%s", resouceToUpdate.GetKind(), resouceToUpdate.GetName())
+	klog.Infof("start processing resource %s", resourceName)
+
+	metaObj := metav1.ObjectMeta{}
+	if err = json.Unmarshal(message.ActionData.Raw, &metaObj); err != nil {
+		klog.Errorf("Failed to unmarshal the raw message %s with error %s", message.ActionData.Raw, err)
+		return err
+	}
+	labels := resouceToUpdate.GetLabels()
+	if message.CondVal {
+		if labels == nil {
+			labels = make(map[string]string)
+		}
+		for key, value := range metaObj.Labels {
+			labels[key] = value
+		}
+		klog.Infof("Resource %s in namesapce '%s' is labeled", resourceName, message.Namespace)
+	} else {
+		for key := range metaObj.Labels {
+			delete(labels, key)
+		}
+		klog.Infof("Resource %s in namespace '%s' is un-labeled", resourceName, message.Namespace)
+	}
+	resouceToUpdate.SetLabels(labels)
+	klog.Infof("%s updated successfully.", resourceName)
+	return nil
+}
+
+func (l *ResourceUpdateExecutor) Execute(ctx context.Context, cfg *rest.Config, message *pb.ExecuteMessage) (*pb.ExecuteResponse, error) {
 	resourceBaseFormat := fmt.Sprintf("%s/%s/%s:%s", message.Group, message.Version, message.Resources, message.ResourceName)
 
 	dynamicClient, err := dynamic.NewForConfig(cfg)
@@ -86,6 +123,6 @@ func (l *LabelExecutor) Execute(ctx context.Context, cfg *rest.Config, message *
 	return response, nil
 }
 
-func NewLabelExecutor(name string) *LabelExecutor {
-	return &LabelExecutor{name: name}
+func NewResourceUpdateExecutor(name string) *ResourceUpdateExecutor {
+	return &ResourceUpdateExecutor{name: name}
 }

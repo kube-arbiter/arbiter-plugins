@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package pkg
+package wrapper
 
 import (
 	"context"
@@ -25,7 +25,6 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
 
-	executors "github.com/kube-arbiter/arbiter-plugins/executor-plugins/default-plugins/pkg/plugins/resource-updater"
 	pb "github.com/kube-arbiter/arbiter/pkg/proto/lib/executor"
 )
 
@@ -66,7 +65,7 @@ func (e *ExecuteServiceImpl) Execute(ctx context.Context, message *pb.ExecuteMes
 		klog.Fatalf("error when building kubeconfig: %s", err.Error())
 	}
 	for _, executor := range message.Executors {
-		instance, ok := executors.GetExecutor(executor)
+		instance, ok := GetExecutor(executor)
 		if !ok {
 			klog.Warningf("%s executor is %s, don't match target 'resourceUpdater'", resourceBaseFormat, executor)
 			continue

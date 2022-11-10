@@ -14,13 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package resourceupdater
+package plugins
 
 import (
-	"github.com/kube-arbiter/arbiter-plugins/executor-plugins/default-plugins/pkg/plugins/label"
+	wrapper "github.com/kube-arbiter/arbiter-plugins/executor-plugins/default-plugins/pkg/wrapper"
 )
 
-// init: registry some Executor instances.
+const (
+	pluginName = "resourceUpdater"
+)
+
+// init: registry the Executor instance.
 func init() {
-	Register("resourceUpdater", label.NewLabelExecutor("resourceUpdater"))
+	wrapper.Register(pluginName, NewResourceUpdateExecutor(pluginName))
 }

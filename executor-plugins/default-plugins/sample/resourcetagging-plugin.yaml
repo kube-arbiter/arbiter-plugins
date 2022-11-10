@@ -1,29 +1,29 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: resource-tagger
+  name: executor-default-plugins
   namespace: system
   labels:
-    plugin: resource-tagger
+    plugin: executor-default-plugins
 spec:
   selector:
     matchLabels:
-      plugin: resource-tagger
+      plugin: executor-default-plugins
   replicas: 1
   template:
     metadata:
       annotations:
-        kubectl.kubernetes.io/default-container: resource-tagger
+        kubectl.kubernetes.io/default-container: executor-default-plugins
       labels:
-        plugin: resource-tagger
+        plugin: executor-default-plugins
     spec:
       securityContext:
         runAsNonRoot: true
       containers:
       - command:
-        - /resource-tagger
-        image: kubearbiter/executor-resource-tagger:v0.1.0
-        name: resource-tagger
+        - /executor-default-plugins
+        image: kubearbiter/executor-default-plugins:v0.2.0
+        name: executor-default-plugins
         securityContext:
           allowPrivilegeEscalation: false
         resources:

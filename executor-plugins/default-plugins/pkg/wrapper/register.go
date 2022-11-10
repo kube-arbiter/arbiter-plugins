@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package resourceupdater
+package wrapper
 
 import (
 	"context"
@@ -42,6 +42,7 @@ func Register(name string, instance Executor) {
 	})
 	if _, ok := mustRegister[name]; ok {
 		klog.Warningf("Executor %s already exists", name)
+		return
 	}
 
 	mustRegister[name] = instance

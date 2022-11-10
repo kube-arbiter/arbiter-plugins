@@ -6,7 +6,7 @@ SOURCES := $(shell find . -type f  -name '*.go')
 REGISTRY ?= "docker.io/kubearbiter"
 
 DOCKER_TARGETS := observer-default-plugins \
-                  executor-resource-tagger
+                  executor-default-plugins
 
 TARGETS := ${DOCKER_TARGETS} \
 

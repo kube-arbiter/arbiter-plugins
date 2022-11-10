@@ -1,6 +1,6 @@
 # Global environment variables
 IMAGE_REPO_ADDR = docker.io
-VERSION = v0.1.0
+VERSION = v0.2.0
 
 
 ##@ General
@@ -67,18 +67,18 @@ run:  ## Run server and client locally.
 ##@ Build
 
 build:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build  -a -o resource-tagger cmd/server/server.go
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build  -a -o executor-default-plugins cmd/server/server.go
 
-build-image: ## Build resource-tagger plugin image.
-	docker build -t $(IMAGE_REPO_ADDR)/kubearbiter/executor-resource-tagger:$(VERSION) .
+build-image: ## Build executor-default-plugins plugin image.
+	docker build -t $(IMAGE_REPO_ADDR)/kubearbiter/executor-default-plugins:$(VERSION) .
 
-updateimg: ## Update resource-tagger plugin image.
+updateimg: ## Update executor-default-plugins plugin image.
 	kubectl get pod -n arbiter | grep executor | awk '{print $$1}' | xargs kubectl delete pod -n arbiter
 
 ##@ Run
 
-kubelog-resource-tagger: ## Show resource-tagger plugin log in K8S environment.
-	kubectl get pod -n arbiter | grep executor | awk '{print $$1}' | xargs kubectl logs -f -n arbiter -c resource-tagger
+kubelog-executor-default-plugins: ## Show executor-default-plugins plugin log in K8S environment.
+	kubectl get pod -n arbiter | grep executor | awk '{print $$1}' | xargs kubectl logs -f -n arbiter -c executor-default-plugins
 
 kubeexec-client: ## Test gRPC client in K8S environment.
-	kubectl get pod -n arbiter | grep executor | awk '{cmd="kubectl exec -n arbiter "$$1" -c resource-tagger -- /client"; system(cmd)}'
+	kubectl get pod -n arbiter | grep executor | awk '{cmd="kubectl exec -n arbiter "$$1" -c executor-default-plugins -- /client"; system(cmd)}'

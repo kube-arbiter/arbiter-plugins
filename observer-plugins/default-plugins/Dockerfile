@@ -7,7 +7,7 @@ ARG GOOS=linux
 
 WORKDIR /workspace
 
-# Copy the Go Modules manifests
+# Copy the source code
 COPY . .
 
 ## Copy the go source and vendor
